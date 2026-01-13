@@ -1,49 +1,44 @@
+import { api } from "./api";
+
+export interface APIVerseResponse {
+  verse: {
+    id: number;
+    text: string;
+    book: string;
+    chapter: number;
+    lesson: string;
+    from: number;
+    to: number | null;
+    approved: boolean;
+  };
+}
+
 export type Verse = {
-  id?: string;
+  id: string;
   text: string;
   reference: string;
   lesson: string;
-  status?: "pending" | "approved" | "rejected";
-  author?: string;
-  createdAt?: string;
 };
 
-const initial: Verse[] = [
-  {
-    id: "1",
-    text: "Porque Deus tanto amou o mundo que deu o seu Filho Unigênito, para que todo o que nele crer não pereça, mas tenha a vida eterna.",
-    reference: "João 3:16",
-    lesson: "Este versículo nos lembra do amor incondicional de Deus."
-  },
-  {
-    id: "2",
-    text: "Entrega o teu caminho ao Senhor; confia nele, e ele tudo fará.",
-    reference: "Salmos 37:5",
-    lesson: "Confie seus planos a Deus e permita que Ele conduza."
+const formatReference = (book: string, chapter: number, from: number, to: number | null): string => {
+  const base = `${book} ${chapter}:${from}`;
+  
+  
+  if (to && to !== from) {
+    return `${base}-${to}`;
   }
-];
+  
+  return base;
+};
 
-let DB = [...initial];
+export async function getRandomVerse(): Promise<Verse> {
+  const { data } = await api.get<APIVerseResponse>("/verse");
+  const { verse } = data;
 
-export function getRandomVerse(): Verse {
-  return DB[Math.floor(Math.random() * DB.length)];
-}
-
-export function getPending(): Verse[] {
-  return DB.filter((v) => v.status !== "approved");
-}
-
-export function submitVerse(v: Omit<Verse, "id" | "status" | "createdAt">) {
-  const newV: Verse = {
-    id: String(Date.now()),
-    ...v,
-    status: "pending",
-    createdAt: new Date().toISOString()
+  return {
+    id: String(verse.id),
+    text: verse.text,
+    lesson: verse.lesson,
+    reference: formatReference(verse.book, verse.chapter, verse.from, verse.to),
   };
-  DB.unshift(newV);
-  return newV;
-}
-
-export function approve(id: string) {
-  DB = DB.map((v) => (v.id === id ? { ...v, status: "approved" } : v));
 }
