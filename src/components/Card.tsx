@@ -1,5 +1,6 @@
 import type { Verse } from "../services/verses";
 import { Button } from "./Button";
+import { useNavigate } from "react-router-dom";
 
 interface CardProps {
   verse: Verse;
@@ -7,6 +8,7 @@ interface CardProps {
 }
 
 export default function Card({ verse, onRefresh }: CardProps) {
+  const navigate = useNavigate();
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-5 transition-transform duration-300 hover:-translate-y-1">
       <div className="p-6 bg-gradient-to-br from-blue-500 to-gray-800 text-white">
@@ -22,7 +24,7 @@ export default function Card({ verse, onRefresh }: CardProps) {
           <Button variant="primary" size="md" onClick={onRefresh}>
             Recarregar
           </Button>
-          <Button variant="primary" size="md">
+          <Button variant="primary" size="md" onClick={() => navigate("/enviar")}>
             Mande o seu!
           </Button>
         </div>
