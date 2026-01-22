@@ -43,9 +43,17 @@ export default async function handler(req, res) {
     }
 
     const response = await fetch(url.toString(), fetchOptions);
-    const data = await response.json();
-    
-    res.status(response.status).json(data);
+    const contentType = response.headers.get('content-type');
+
+    let data;
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      data = await response.text();
+    }
+
+    res.status(response.status).send(data);
+
   } catch (error) {
     console.error('Proxy error:', error);
     res.status(500).json({ error: 'Proxy error', details: error.message });
