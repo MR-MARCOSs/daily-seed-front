@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api-backend/(.*)",
-      "destination": "https://140.238.187.4:8000/$1"
+      "destination": "/api/proxy?path=$1"
     },
     {
       "source": "/(.*)",

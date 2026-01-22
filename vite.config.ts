@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/api-backend': {
           
-          target: env.BACKEND_URL || 'http://140.238.187.4:8000',
+          target: env.BACKEND_URL,
           changeOrigin: true,
           secure: false, 
           rewrite: (path) => path.replace(/^\/api-backend/, ''),
