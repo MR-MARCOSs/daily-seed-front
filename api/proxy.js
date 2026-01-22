@@ -5,13 +5,24 @@ export default async function handler(req, res) {
   const backendUrl = `${process.env.BACKEND_URL}/${backendPath}`;
 
   try {
+    const headers = { ...req.headers };
+    delete headers.host;
+    delete headers.connection;
+    
+    let body;
+    if (req.method !== 'GET' && req.body) {
+      if (headers['content-type']?.includes('application/x-www-form-urlencoded')) {
+        body = new URLSearchParams(req.body).toString();
+      } else {
+        body = JSON.stringify(req.body);
+        headers['Content-Type'] = 'application/json';
+      }
+    }
+
     const response = await fetch(backendUrl, {
       method: req.method,
-      headers: {
-        'Content-Type': 'application/json',
-        ...req.headers,
-      },
-      body: req.method !== 'GET' ? JSON.stringify(req.body) : undefined,
+      headers,
+      body,
     });
 
     const data = await response.json();
