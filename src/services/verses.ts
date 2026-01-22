@@ -45,7 +45,6 @@ export async function getVerseRange(
   to?: number
 ): Promise<VerseRangeResponse | null> {
   try {
-
     const params = new URLSearchParams();
     params.append('from', from.toString());
     if (to) params.append('to', to.toString());
