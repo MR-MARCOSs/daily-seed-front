@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { Button } from "../../components/Button";
 import { bibleBooks } from "../../utils/bibleBooks";
 import { useBibleFetcher } from "../../hooks/useBibleFetcher";
-import { createVerse } from "../../services/verses"; // Importe a nova função
-
+import { createVerse } from "../../services/verses";
 interface FormState {
   book: string;
   chapter: string;
@@ -27,6 +26,9 @@ export default function UserSendPage() {
 
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [isSending, setIsSending] = useState(false);
+  const [bookSearch, setBookSearch] = useState("");
+  const [showBookList, setShowBookList] = useState(false);
+  const bookInputRef = useRef<HTMLInputElement>(null);
 
   const { fetchedText, isLoading: isFetchingText } = useBibleFetcher(form.book, form.chapter, form.from, form.to);
 
@@ -38,6 +40,34 @@ export default function UserSendPage() {
 
   const handleChange = (field: keyof FormState, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
+    if (status) setStatus(null);
+  };
+
+  const filteredBooks = bibleBooks.filter(book => 
+    book.name.toLowerCase().includes(bookSearch.toLowerCase())
+  );
+
+  const handleBookSelect = (book: typeof bibleBooks[0]) => {
+    setForm(prev => ({ ...prev, book: book.abbrev }));
+    setBookSearch(book.name);
+    setShowBookList(false);
+    if (status) setStatus(null);
+  };
+
+  const handleBookInputChange = (value: string) => {
+    setBookSearch(value);
+    setShowBookList(true);
+    
+    const exactMatch = bibleBooks.find(book => 
+      book.name.toLowerCase() === value.toLowerCase()
+    );
+    
+    if (exactMatch) {
+      setForm(prev => ({ ...prev, book: exactMatch.abbrev }));
+    } else {
+      setForm(prev => ({ ...prev, book: "" }));
+    }
+    
     if (status) setStatus(null);
   };
 
@@ -69,6 +99,7 @@ export default function UserSendPage() {
 
       setStatus({ type: 'success', message: "Versículo enviado com sucesso! Aguardando aprovação." });
       setForm({ book: "", chapter: "", from: "", to: "", text: "", lesson: "" });
+      setBookSearch("");
       
     } catch (error) {
       console.error(error);
@@ -86,20 +117,31 @@ export default function UserSendPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="col-span-2">
+          <div className="col-span-2 relative">
             <label className="text-xs font-bold text-gray-500 uppercase">Livro</label>
-            <select 
-              value={form.book} 
-              onChange={(e) => handleChange("book", e.target.value)} 
+            <input
+              ref={bookInputRef}
+              type="text"
+              value={bookSearch}
+              onChange={(e) => handleBookInputChange(e.target.value)}
+              onFocus={() => setShowBookList(true)}
+              onBlur={() => setTimeout(() => setShowBookList(false), 200)}
               className="w-full border rounded-lg p-3 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-            >
-              <option value="">Selecione...</option>
-              {bibleBooks.map((book) => (
-                <option key={book.abbrev} value={book.abbrev}>
-                  {book.name}
-                </option>
-              ))}
-            </select>
+              placeholder="Digite o nome do livro..."
+            />
+            {showBookList && filteredBooks.length > 0 && (
+              <div className="absolute z-10 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                {filteredBooks.map((book) => (
+                  <div
+                    key={book.abbrev}
+                    onClick={() => handleBookSelect(book)}
+                    className="p-3 hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
+                  >
+                    {book.name}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>
