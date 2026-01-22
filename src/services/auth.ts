@@ -74,10 +74,13 @@ class AuthService {
   }
 
   async login(credentials: LoginCredentials): Promise<User> {
-    const { data } = await api.post<AuthResponse>('/auth/login', credentials, {
+    const formData = new URLSearchParams();
+    formData.append('name', credentials.name);
+    formData.append('password', credentials.password);
+    
+    const { data } = await api.post<AuthResponse>('/auth/login', formData, {
       headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Content-Type': 'application/x-www-form-urlencoded'
       }
     });
     this.accessToken = data.accessToken;
@@ -89,10 +92,9 @@ class AuthService {
 
     this.refreshPromise = new Promise(async (resolve, reject) => {
       try {
-        const { data } = await api.post<{ accessToken: string }>('/auth/refresh', {}, {
+        const { data } = await api.post<{ accessToken: string }>('/auth/refresh', '', {
           headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Content-Type': 'application/x-www-form-urlencoded'
           }
         });
         this.accessToken = data.accessToken;
