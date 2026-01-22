@@ -1,3 +1,11 @@
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '1mb',
+    },
+  },
+}
+
 export default async function handler(req, res) {
   const { path = [] } = req.query;
   const backendPath = Array.isArray(path) ? path.join('/') : path;
@@ -30,13 +38,13 @@ export default async function handler(req, res) {
       headers,
     };
 
-    if (req.method !== 'GET' && req.method !== 'HEAD' && req.body) {
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
       fetchOptions.body = JSON.stringify(req.body);
     }
 
     const response = await fetch(url.toString(), fetchOptions);
-
     const data = await response.json();
+    
     res.status(response.status).json(data);
   } catch (error) {
     console.error('Proxy error:', error);
