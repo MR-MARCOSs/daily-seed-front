@@ -25,6 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
       } catch (error) {
+        console.log('No valid token found');
       } finally {
         setIsLoading(false);
       }

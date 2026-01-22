@@ -59,9 +59,12 @@ class AuthService {
 
           try {
             const newToken = await this.refreshToken();
-            originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
-            return api(originalRequest);
+            if (newToken) {
+              originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+              return api(originalRequest);
+            }
           } catch (refreshError) {
+            this.accessToken = null;
             return Promise.reject(refreshError);
           }
         }
@@ -71,7 +74,12 @@ class AuthService {
   }
 
   async login(credentials: LoginCredentials): Promise<User> {
-    const { data } = await api.post<AuthResponse>('/auth/login', credentials);
+    const { data } = await api.post<AuthResponse>('/auth/login', credentials, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
     this.accessToken = data.accessToken;
     return data.user!;
   }
@@ -81,8 +89,12 @@ class AuthService {
 
     this.refreshPromise = new Promise(async (resolve, reject) => {
       try {
-
-        const { data } = await api.post<{ accessToken: string }>('/auth/refresh');
+        const { data } = await api.post<{ accessToken: string }>('/auth/refresh', {}, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        });
         this.accessToken = data.accessToken;
         resolve(data.accessToken);
       } catch (error) {
@@ -98,7 +110,12 @@ class AuthService {
 
   async logout(): Promise<void> {
     try {
-      await api.post('/auth/logout');
+      await api.post('/auth/logout', {}, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
     } finally {
       this.accessToken = null;
     }
