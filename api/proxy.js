@@ -2,7 +2,6 @@ export default async function handler(req, res) {
   const { path = [] } = req.query;
   const backendPath = Array.isArray(path) ? path.join('/') : path;
 
-
   const url = new URL(`${process.env.BACKEND_URL}/${backendPath}`);
 
   Object.keys(req.query).forEach(key => {
@@ -26,11 +25,16 @@ export default async function handler(req, res) {
       headers.Authorization = req.headers.authorization;
     }
 
-    const response = await fetch(url.toString(), {
+    const fetchOptions = {
       method: req.method,
       headers,
-      body: req.method !== 'GET' && req.body ? JSON.stringify(req.body) : undefined,
-    });
+    };
+
+    if (req.method !== 'GET' && req.method !== 'HEAD' && req.body) {
+      fetchOptions.body = JSON.stringify(req.body);
+    }
+
+    const response = await fetch(url.toString(), fetchOptions);
 
     const data = await response.json();
     res.status(response.status).json(data);
