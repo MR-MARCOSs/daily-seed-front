@@ -3,7 +3,7 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Card from "../../components/Card";
 import Loading from "../../components/Loading";
-import Logo from "../../components/Logo";
+
 import { getRandomVerse, type Verse } from "../../services/verses";
 
 export default function HomePage() {
@@ -41,8 +41,7 @@ export default function HomePage() {
         ) : (
           verse && <Card verse={verse} onRefresh={loadVerse} />
         )}
-        
-        <Logo />
+
       </main>
       
       <Footer />

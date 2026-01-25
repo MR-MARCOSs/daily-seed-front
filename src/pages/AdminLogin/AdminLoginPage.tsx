@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import Logo from '../../components/Logo';
+
 import { useAuth } from '../../context/AuthContext'; 
 
 export default function LoginPage() {
@@ -80,9 +80,7 @@ export default function LoginPage() {
       <main className="flex-grow flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-2xl shadow-lg p-8 space-y-6">
-            <div className="flex justify-center mb-6">
-              <Logo/>
-            </div>
+
 
             <div className="text-center">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
